@@ -1,35 +1,29 @@
 pub fn part1(input: &str) -> u32 {
-    let mut total: u32 = 0;
+    let chars = input.chars().collect::<Vec<char>>();
     let mut current: String = "".to_string();
+    let mut total: u32 = 0;
 
-    for char in input.chars() {
-        match char {
-            'm' if current == ""  => {
+    let mut i: usize = 0;
+    while i < input.len() {
+        if i + 4 < input.len() && &input[i..(i + 4)] == "mul(" {
+            current += "mul(";
+            i += 4;
+        } else if current.starts_with("mul(") {
+            let char = chars[i];
+            if char.is_digit(10) {
                 current.push(char);
-            }
-            'u' if current == "m"  => {
+            } else if char == ',' && current.len() > 4 {
                 current.push(char);
-            }
-            'l' if current == "mu"  => {
-                current.push(char);
-            }
-            '(' if current == "mul"  => {
-                current.push(char);
-            }
-            _ if char.is_digit(10) && current.starts_with("mul(") => {
-                current.push(char);
-            }
-            ',' if current.starts_with("mul(") && current.len() > 4 => {
-                current.push(char);
-            }
-            ')' if current.starts_with("mul(") && current.contains(',') => {
+            } else if char == ')' && current.starts_with("mul(") && current.contains(',') {
                 total += current[4..].split(',').map(|x| x.parse::<u32>().unwrap()).product::<u32>();
                 current.clear();
-            }
-
-            _ => {
+            } else {
                 current.clear();
             }
+            i += 1;
+        } else {
+            current.clear();
+            i += 1;
         }
     }
 
@@ -37,69 +31,40 @@ pub fn part1(input: &str) -> u32 {
 }
 
 pub fn part2(input: &str) -> u32 {
-    let mut total: u32 = 0;
+    let chars = input.chars().collect::<Vec<char>>();
     let mut current: String = "".to_string();
-    let mut enabled = true;
+    let mut total: u32 = 0;
+    let mut enabled: bool = true;
 
-    for char in input.chars() {
-        match char {
-            'm' if current == ""  => {
+    let mut i: usize = 0;
+    while i < input.len() {
+        if enabled && i + 4 < input.len() && &input[i..(i + 4)] == "mul(" {
+            current += "mul(";
+            i += 4;
+        } else if i + 4 < input.len() && &input[i..(i + 4)] == "do()" {
+            enabled = true;
+            current.clear();
+            i += 4;
+        } else if i + 7 < input.len() && &input[i..(i + 7)] == "don't()" {
+            enabled = false;
+            current.clear();
+            i += 7;
+        } else if current.starts_with("mul(") {
+            let char = chars[i];
+            if char.is_digit(10) {
                 current.push(char);
-            }
-            'u' if enabled && current == "m"  => {
+            } else if char == ',' && current.len() > 4 {
                 current.push(char);
-            }
-            'l' if enabled && current == "mu"  => {
-                current.push(char);
-            }
-            '(' if enabled && current == "mul"  => {
-                current.push(char);
-            }
-            _ if enabled && char.is_digit(10) && current.starts_with("mul(") => {
-                current.push(char);
-            }
-            ',' if enabled && current.starts_with("mul(") && current.len() > 4 => {
-                current.push(char);
-            }
-            ')' if enabled && current.starts_with("mul(") && current.contains(',') => {
+            } else if char == ')' && current.starts_with("mul(") && current.contains(',') {
                 total += current[4..].split(',').map(|x| x.parse::<u32>().unwrap()).product::<u32>();
                 current.clear();
-            }
-
-            'd' if current == ""  => {
-                current.push(char);
-            }
-            'o' if current == "d"  => {
-                current.push(char);
-            }
-            '(' if current == "do"  => {
-                current.push(char);
-            }
-            ')' if current == "do("  => {
-                enabled = true;
+            } else {
                 current.clear();
             }
-
-            'n' if current == "do"  => {
-                current.push(char);
-            }
-            '\'' if current == "don"  => {
-                current.push(char);
-            }
-            't' if current == "don'"  => {
-                current.push(char);
-            }
-            '(' if current == "don't"  => {
-                current.push(char);
-            }
-            ')' if current == "don't("  => {
-                enabled = false;
-                current.clear();
-            }
-
-            _ => {
-                current.clear();
-            }
+            i += 1;
+        } else {
+            current.clear();
+            i += 1;
         }
     }
 
