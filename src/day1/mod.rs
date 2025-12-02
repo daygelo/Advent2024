@@ -1,51 +1,38 @@
-use std::collections::HashMap;
+pub fn part_1(input: &str) -> u32 {
+    let mut point = 50;
+    let mut password = 0;
 
-fn get_columns(input: &str) -> (Vec<i32>, Vec<i32>) {
-    let lines = input.lines();
-    let mut left = Vec::<i32>::new();
-    let mut right = Vec::<i32>::new();
+    for line in input.lines() {
+        let (direction, distance) = line.split_at(1);
+        let direction = if direction == "R" { 1 } else { -1 };
+        let distance = distance.parse::<i32>().unwrap();
+        point = (point + direction * distance) % 100; // I could've also used the rem_euclid() method for positive modulo
 
-    for line in lines {
-        let numbers: Vec<&str> = line.split_whitespace().collect();
-        left.push(numbers[0].parse::<i32>().unwrap());
-        right.push(numbers[1].parse::<i32>().unwrap());
-    }
-
-    (left, right)
-}
-
-pub fn part1(input: &str) -> u32 {
-    let (mut left, mut right) = get_columns(input);
-
-    left.sort();
-    right.sort();
-
-    let mut total: u32 = 0;
-
-    for (l, r) in left.into_iter().zip(right) {
-        total += l.abs_diff(r);
-    }
-
-    total
-}
-
-pub fn part2(input: &str) -> i32 {
-    let (left, right) = get_columns(input);
-    let mut map: HashMap<i32, usize> = HashMap::new();
-
-    for l in left.iter() {
-        if !map.contains_key(l) && right.contains(l) {
-            let left_count = left.iter().filter(|x| x == &l).count();
-            let right_count = right.iter().filter(|x| x == &l).count();
-            map.insert(*l, left_count * right_count);
+        if point == 0 {
+            password += 1;
         }
     }
 
-    let mut score: i32 = 0;
+    password
+}
 
-    for (key, value) in map {
-        score += key * value as i32;
+pub fn part_2(input: &str) -> i32 {
+    let mut point = 50;
+    let mut password = 0;
+
+    for line in input.lines() {
+        let (direction, distance) = line.split_at(1);
+        let direction = if direction == "R" { 1 } else { -1 };
+        let distance = distance.parse::<i32>().unwrap();
+        
+        if direction > 0 || point == 0 {
+            password += (point + distance) / 100;
+        } else {
+            password += (100 - point + distance) / 100;
+        }
+        
+        point = (point + direction * distance).rem_euclid(100); // positive modole necessary
     }
 
-    score
+    password
 }
